@@ -99,8 +99,11 @@ cor(stress_eat[ , c("stress","eat_difficulties")])
 # Regress eating difficulties on stress. We use the lm() function. The
 # The dependent variable (outcome) appears to the left of the tilde. It
 # is the variable we are trying to predict. In this case, we are trying
-# to predict eat_difficulties. The independent variable (predictor) 
-# appears to the right of the tilde. In this case, we are using stress. The
+# to predict eat_difficulties. 
+
+# The independent variable (predictor) appears to the right of the tilde. 
+
+# In this case, we are using stress. The
 # data argument is where we specify for R where to go find the variables. Both
 # eat_difficulties & stress are variables that are in the data frame called 
 # stress_eat. Thus, the data argument is data=stress_eat. Although there are 
