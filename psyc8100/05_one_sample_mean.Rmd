@@ -1,0 +1,103 @@
+---
+title: 'Module 05: One Sample Mean'
+author: "Patrick J. Rosopa, Ph.D."
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output:
+  pdf_document:
+    toc: yes
+    toc_depth: 3
+  word_document:
+    toc: yes
+    toc_depth: 3
+  html_document:
+    toc: yes
+    toc_depth: '3'
+    df_print: paged
+editor_options: 
+  chunk_output_type: console
+---
+
+## Objective
+
+-   Practice analyses involving a single sample mean using the contrived data on depression.
+
+### Import data
+
+Recall that there are **several** ways to load a dataset into `R`:
+
+-   If the data is not too large, you can type the data into `R`
+
+-   Importing data over the Internet
+
+`dat <- read.csv('insert_link_to_file_here', header = T)`
+
+-   Read the dataset from your computer
+
+```{r}
+# Download the data & ensure it is located in your project. In this example, the
+# data file is located in a folder called Data in my current working directory.
+
+library(haven)
+depress <- read_sav("Data/1-One-sample t.sav")
+
+str(depress)
+```
+
+Notice that the file is an *SPSS* data file. We cannot use `read.csv()` to import an *SPSS* data file. Above, we used a function in the `haven` package. When importing the data, notice that `read_sav()` created an object called a tibble. Think of a tibble as a data frame with some additional features. When using the `str()` function, we can see that there are 10 observations and only one variable in the tibble. The **depression** variable can be indexed using the \$.
+
+### Examine the data
+
+We can calculate descriptive statistics and examine a histogram of the outcome---*depression*.
+
+```{r}
+summary(depress)
+
+mean(depress$depression)
+sd(depress$depression)
+
+hist(depress$depression, main = "", 
+     xlab = "Depression",
+     col = "slategray3",
+     las = 1)
+```
+
+For continuous variables, we can also use `boxplot()` to get a sense of the center and the spread of the data. If you do not have too many different values of a continuous variable, a stem-and-leaf plot can also be useful to examine. Use `stem()` to examine the distribution of the scores. We can see that 6 occurs once. We can see that 35 occurs five times.
+
+```{r}
+stem(depress$depression)
+```
+
+### Conduct a two-tailed test on a single mean
+
+With the `t.test()` function in base `R`, the dependent variable is the first argument. Use the optional `mu` argument to specify the value that we are testing against. By default, the test value is set to 0. However, for this problem, we specify 15. By default, a two-tailed test is conducted. A two-tailed test is a non-directional hypothesis test. We allow for the possibility that the null hypothesis can be false in either direction (i.e., $\mu < 15$ or $\mu > 15$).
+
+```{r}
+t.test(depress$depression, mu = 15)
+```
+
+We can see that the *t* random variable on 9 degrees of freedom is 3.4943. The *p* value is smaller than the conventional values for $\alpha$ like .05 and .01. Thus, we reject the null hypothesis. Note that the output also displays the alternative hypothesis which is that the "true mean is not equal to 15" ($\mu \ne 15$). In addition to the sample mean of 28.1, the 95% confidence interval is displayed. If some other confidence level is desired, not surprisingly, an optional argument can be used in the `t.test()` function. For example, if we want a 99% confidence interval, as expected, the estimated interval will be wider than that from a 95% confidence interval.
+
+```{r}
+t.test(depress$depression, mu = 15, conf.level = .99)
+```
+
+### Conduct a one-tailed test on a single mean
+
+To test whether our sample comes from a population where the mean is *greater* than 15 ($\mu > 15$), we can use an optional argument. This is a one-tailed test where we believe that $\mu > 15$. If our directional hypothesis test is correct, then we would expect that our test statistic would be a positive number. Based on the very small *p* value less than $\alpha$, the population mean is, in fact, significantly greater than 15.
+
+```{r}
+t.test(depress$depression, mu = 15, alternative = "greater")
+```
+
+In the example above, we conducted a directional test with the rejection region in the right tail ($\mu > 15$). We also could have conducted a directional test with the rejection region in the left tail ($\mu < 15$). In this case, we would need to change the optional argument to alternative = "less."
+
+Note: It is up to you as a researcher to decide whether to conduct a two-tailed test vs. a one-tailed test. If you conduct a one-tailed test, you should have strong theoretical support for the expected direction. In general, two-tailed tests appear to be more commonly used than one-tailed tests.
+
+We can use `help("t.test")` to learn more about this function and the arguments that are required vs. optional. Instead of the `t.test()` function in base `R`, we can also use a function in the `lsr` package. Here, we conduct a two-tailed test.
+
+```{r}
+library(lsr)
+oneSampleTTest(depress$depression, mu = 15)
+```
+
+This function produces much of the same output as the `t.test()` function. In addition, an estimate of Cohen's *d* is computed.
