@@ -1,0 +1,15 @@
+\contentsline {subsection}{Objective}{1}{section*.2}%
+\contentsline {subsubsection}{Description of data}{1}{section*.3}%
+\contentsline {subsubsection}{Import data}{1}{section*.4}%
+\contentsline {subsubsection}{Convert categorical variables to factors}{2}{section*.5}%
+\contentsline {subsubsection}{Examine the data}{2}{section*.6}%
+\contentsline {paragraph}{Maneuver Scores}{2}{section*.7}%
+\contentsline {paragraph}{Sensor Scores}{4}{section*.8}%
+\contentsline {paragraph}{Knowledge Scores}{5}{section*.9}%
+\contentsline {subsubsection}{Conduct test on two independent sample means}{6}{section*.10}%
+\contentsline {subsubsection}{Check homogeneity of variance assumption}{7}{section*.11}%
+\contentsline {subsubsection}{Summary}{8}{section*.12}%
+\contentsline {paragraph}{1A)}{8}{section*.13}%
+\contentsline {paragraph}{1B)}{8}{section*.14}%
+\contentsline {paragraph}{2A)}{8}{section*.15}%
+\contentsline {paragraph}{2B)}{8}{section*.16}%

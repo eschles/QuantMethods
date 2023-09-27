@@ -1,0 +1,145 @@
+---
+title: "Module 6"
+author: "Alex Schlesener"
+date: "2023-09-24"
+output:
+    pdf_document:
+      toc: yes
+      toc_depth: 3
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Objective
+
+-   Conduct analyses on two different independent sample means:
+    -   Special forces soldiers who completed Standard training
+    -   Special forces soldiers who completed new training
+-   Examine scores of various criteria:
+    -   Maneuvering Efficacy
+    -   Sensor Operation Proficiency
+    -   Declarative Knowledge
+-   Summarize findings of the statistical analyses.
+
+### Description of data
+
+A sample of 11 special forces soldiers were evaluated regarding scores on various criteria including Maneuvering Efficacy, Sensor Operation Proficiency, and Declarative Knowledge. (Higher scores are better.) Of the 11 soldiers, 6 completed Standard training, while 5 completed New training. The data is in the file \texttt{uav.csv}.
+
+Using variables *Maneuver*, *Sensor*, and *Knowledge*, we compared the results of soldiers who completed Standard training and soldiers who completed New training.
+
+### Import data
+
+```{r import data}
+dat <- read.csv("Data/uav.csv")
+str(dat)
+```
+
+When using the `str()` function, we can see that there are 11 observations and 4 variables in the data frame. We will focus on *Maneuver*, *Sensor* and *Knowledge*, relative to *Training*.
+
+### Convert categorical variables to factors
+
+In the present data, *Training* is a categorical variable, and should be converted into a factor. This way, we can examine what 0 and 1 represent.
+
+```{r}
+dat$Training <- factor(dat$Training)
+levels(dat$Training)        # Confirm the levels of the diabetes factor
+summary(dat)                # 355 No and 177 Yes
+```
+Based on this information, we can see that 6 soldiers completed Standard training, whereas 5 soldier completed New training.
+
+### Examine the data
+
+#### Maneuver Scores 
+Calculate descriptive statistics and examine a boxplot of the outcome (Maneuver) by the categorical predictor (Training).
+
+```{r Maneuver}
+aggregate(Maneuver ~ Training, dat, mean)       # mean in each group
+aggregate(Maneuver ~ Training, dat, median)     # median in each group
+aggregate(Maneuver ~ Training, dat, sd)         # standard deviation in each group
+aggregate(Maneuver ~ Training, dat, length)     # sample size in each group
+
+boxplot(Maneuver ~ Training, data = dat,
+        col = "slategray3",
+        las = 1,
+        xlab = "Training",
+        ylab = "Maneuver")
+
+axis(3, at = 1:2, labels = paste("n = ", table(dat$Training)))
+
+```
+
+#### Sensor Scores 
+Calculate descriptive statistics and examine a boxplot of the outcome (Sensor) by the categorical predictor (Training).
+
+```{r Sensor}
+aggregate(Sensor ~ Training, dat, mean)       # mean in each group
+aggregate(Sensor ~ Training, dat, median)     # median in each group
+aggregate(Sensor ~ Training, dat, sd)         # standard deviation in each group
+aggregate(Sensor ~ Training, dat, length)     # sample size in each group
+
+boxplot(Sensor ~ Training, data = dat,
+        col = "slategray3",
+        las = 1,
+        xlab = "Training",
+        ylab = "Sensor")
+
+axis(3, at = 1:2, labels = paste("n = ", table(dat$Training)))
+
+```
+
+#### Knowledge Scores 
+Calculate descriptive statistics and examine a boxplot of the outcome (Knowledge) by the categorical predictor (Training).
+
+```{r Knowledge}
+aggregate(Knowledge ~ Training, dat, mean)       # mean in each group
+aggregate(Knowledge ~ Training, dat, median)     # median in each group
+aggregate(Knowledge ~ Training, dat, sd)         # standard deviation in each group
+aggregate(Knowledge ~ Training, dat, length)     # sample size in each group
+
+boxplot(Knowledge ~ Training, data = dat,
+        col = "slategray3",
+        las = 1,
+        xlab = "Training",
+        ylab = "Knowledge")
+
+axis(3, at = 1:2, labels = paste("n = ", table(dat$Training)))
+
+```
+
+### Conduct test on two independent sample means
+We conducted a test on the differences between two independent means. This test was performed on three different variables: *Maneuver*, *Sensor*, and *Knowledge*.
+
+```{r}
+t.test(Maneuver ~ Training, data = dat, var.equal = T)
+t.test(Sensor ~ Training, data = dat, var.equal = T)
+t.test(Knowledge ~ Training, data = dat, var.equal = T)
+```
+
+### Check homogeneity of variance assumption
+Use Levene's Test to ensure the validity of the test statistic via determining the homoscedasticity assumption. 
+
+```{r}
+library(car)
+leveneTest(Maneuver ~ Training, dat, center = mean)
+leveneTest(Sensor ~ Training, dat, center = mean)
+leveneTest(Knowledge ~ Training, dat, center = mean)
+```
+### Summary
+#### 1A)
+To assess the effectiveness of the two types of special forces soldier Raven B operation training, an independent samples t test was conducted using maneuver scores as the dependent variable. The average impact for New Training (M = 25.60, SD = 3.51) was greater than that of Standard Training (*M* = 18.33, *SD* = 2.73) and this difference was statistically significant, *t*(9) = -3.87, *p* = .004, Cohen's *d* = -2.34. The 95% confidence interval for the mean difference was [-11.51, -3.019]. Overall, New Training appears to be more effective than Standard Training at maneuver scores.
+
+To assess the effectiveness of the two types of special forces soldier Raven B operation training, an independent samples t test was conducted using sensor scores as the dependent variable. The average impact for New Training (M = 47.00, SD = 6.67) was greater than that of Standard Training (*M* = 34.00, *SD* = 10.39) and this difference was statistically significant, *t*(9) = -2.40, *p* = .04, Cohen's *d* = -1.46. The 95% confidence interval for the mean difference was [-25.24, -.765]. Overall, New Training appears to be more effective than Standard Training at sensor scores.
+
+To assess the effectiveness of the two types of special forces soldier Raven B operation training, an independent samples t test was conducted using knowledge scores as the dependent variable. The average impact for New Training (M = 23.80, SD = 4.82) was greater than that of Standard Training (*M* = 18.33, *SD* = 3.50) and this difference was not statistically significant, *t*(9) = -2.18, *p* = .057, Cohen's *d* = -1.32. The 95% confidence interval for the mean difference was [-11.14, .202]. Overall, New Training does not appear to be more effective than Standard Training at knowledge scores.
+
+#### 1B)
+
+Overall, New Training appears to be more effective than Standard Training, specifically regarding maneuver efficacy and sensor operation proficiency. Average scores in declarative knowledge were higher in New training, but this did not reach a level of significance. 
+
+#### 2A)
+The homogeneity of variance indicates that the population variance between each group does not differ from one another. In other words, homoscedasticity indicates that the population variances are the same.
+
+#### 2B)
+This assumption was never mentioned in a one sample test because only one population variance was being evaluated, and homoscedasticity is measured when comparing two or more group sizes. 

@@ -1,0 +1,120 @@
+---
+title: 'Module 05: More Practice with Two Sample Means'
+author: 'Patrick J. Rosopa, Ph.D.'
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output:
+  pdf_document:
+    toc: yes
+    toc_depth: 3
+  word_document:
+    toc: yes
+    toc_depth: 3
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Objective
+
+-   Practice analyses involving two independent sample means.
+-   Examine boxplots of each numeric variable and by group.
+-   Conduct statistical analyses using *t* and summarize findings.
+
+### Description of data
+
+A sample of 44 women living near Phoenix, Arizona were tested for diabetes. Other information was gathered from these women at the time of testing, including number of pregnancies, glucose level, blood pressure, skin fold thickness, body mass index, diabetes pedigree and age. The data are in the file \texttt{diabetes.csv}.
+
+Use the variables *age* and *diabetes*. Compare the ages of women who tested negative for diabetes and those who tested positive by examining side-by-side boxplots of ages in the two groups. Also inspect the mean, median, and standard deviation of age across the two groups. Based on these descriptive summaries and a statistical test, does age appear to be associated with result of the diabetes test?
+
+### Import data
+
+Recall that there are several ways to load a dataset into `R`. Download the data and ensure it is located in your project. In this example, the file is located in a folder called Data in my current working directory.
+
+```{r import data}
+dat <- read.csv("Data/diabetes.csv")
+str(dat)
+```
+
+When using the `str()` function, we can see that there are 532 observations and eight variables in the data frame. We will focus on *age* and *diabetes*.
+
+### Convert categorical variables to factors
+
+It is a good idea to ensure that any categorical variables are properly converted to factors. Be sure that you know how the levels are coded. For example, if a treatment is coded 1 and 2, be sure that you know what 1 and 2 represent. In the present example, *diabetes* is a character vector. We should convert *diabetes* to a factor.
+
+Note how `R` converts a character vector to a factor.
+
+```{r}
+dat$diabetes <- factor(dat$diabetes)
+levels(dat$diabetes)        # Confirm the levels of the diabetes factor
+summary(dat)                # 355 No and 177 Yes
+```
+
+### Examine the data
+
+We can calculate descriptive statistics and examine a boxplot of the outcome (*age*) by the categorical predictor (*diabetes*).
+
+```{r eda}
+summary(dat)
+
+# We can also examine descriptive statistics on age by group.
+
+aggregate(age ~ diabetes, dat, mean)       # mean in each group
+aggregate(age ~ diabetes, dat, median)     # median in each group
+aggregate(age ~ diabetes, dat, sd)         # standard deviation in each group
+aggregate(age ~ diabetes, dat, length)     # sample size in each group
+
+# If we have missing values, we can include an optional argument.
+# na.action = na.omit
+# Example: aggregate(age ~ diabetes, dat, mean, na.action = na.omit)
+
+boxplot(age ~ diabetes, data = dat,
+        col = "slategray3",
+        las = 1,
+        xlab = "Diabetes",
+        ylab = "Age")
+
+axis(3, at = 1:2, labels = paste("n = ", table(dat$diabetes)))
+```
+
+### Conduct test on two independent sample means
+
+Use the `t.test()` function to conduct the test on the difference between two independent means. The `t.test()` function has a formula method for specifying the outcome and the categorical predictor. *age* is the outcome. *diabetes* is the binary predictor. Use the `data` argument to specify where `R` should look for the variables. By using `var.equal = T`, we obtain the conventional Student's *t* instead of Welch's *t* (which allows for heterogeneous variances). By default, a two-tailed test is conducted.
+
+```{r}
+t.test(age ~ diabetes, data = dat, var.equal = T)
+```
+
+We can see that the *t* random variable on 530 degrees of freedom is -7.6434. The *p* value is smaller than the conventional values for $\alpha$ like .05 and .01. In fact, it is so small that we would need to move the decimal place 14 spaces to the left. Clearly, we reject the null hypothesis. Note that the output also displays the alternative hypothesis that the true mean difference is not equal to 0. In addition to the mean age of 29.22 for women who tested negative for diabetes and 36.41 for women who tested positive for diabetes, the 95% confidence interval is displayed. Unsurprisingly, the 95% confidence interval does NOT include 0. That is, the population mean difference $\mu_{No} - \mu_{Yes} \ne 0$.
+
+To test whether the population mean difference is *less* than 0, we can use an optional argument for a directional test.
+
+```{r}
+t.test(age ~ diabetes, data = dat, alternative = "less", var.equal=T)
+```
+
+We can use `help("t.test")` to learn more about this function and the arguments that are required vs. optional. Instead of the `t.test()` function in base `R`, we can also use a function in the `lsr` package. We conduct a two-tailed test.
+
+```{r message = F}
+library(lsr)
+independentSamplesTTest(age ~ diabetes, data = dat, var.equal = T)
+```
+
+This function produces much of the same output as the `t.test()` function. In addition, an estimate of Cohen's *d* is computed.
+
+### Check homogeneity of variance assumption
+
+The two independent samples *t*-test requires three assumptions: normality, independence, and homogeneity of variance. For now, we will focus on the homogeneity of variance assumption. With this assumption, the population variance in each group should not differ from one another. We will use Levene's test in the `car` package to check this assumption. We do NOT want the test to be statistically significant. In other words, we are hoping that the *p* value will be greater than $\alpha$, where $\alpha$ is commonly set at .05.
+
+```{r message = F}
+library(car)
+leveneTest(age ~ diabetes, dat, center = mean)
+```
+
+Notice above that the *p* value associated with Levene's test was less than $\alpha = .05$. We would conclude that the two population variances differ from one another. Thus, it would be preferable to conduct Welch's *t* instead of Student's *t*.
+
+```{r}
+t.test(age ~ diabetes, data = dat)
+```
+
+Our conclusion is the same with Welch's test. The population means differ from one another. Note that the *df* for Welch's *t* will be smaller than the *df* from the conventional Student's *t*.
