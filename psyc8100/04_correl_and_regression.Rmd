@@ -3,18 +3,9 @@ title: 'Module 04: More Practice with Correlation & Simple Linear Regression'
 author: "Patrick J. Rosopa, Ph.D."
 date: "`r format(Sys.time(), '%B %d, %Y')`"
 output:
-  html_document:
-    toc: yes
-    toc_depth: '3'
-    df_print: paged
-  word_document:
-    toc: yes
-    toc_depth: 3
   pdf_document:
     toc: yes
     toc_depth: 3
-editor_options: 
-  chunk_output_type: inline
 ---
 
 ## Objective

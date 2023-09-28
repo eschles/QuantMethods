@@ -1,0 +1,141 @@
+---
+title: "PSYC 8100: Exam 1"
+author: "Alex Schlesener"
+date: "2023-09-27"
+output:
+    pdf_document:
+      toc: yes
+      toc_depth: 3
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# 1: NASA-TLX
+## 1a) Data Analyses (R)
+### Load & Examine the dataset
+```{r}
+# Load the dataset
+dat1 <- read.csv('Data/chemical.csv', header = T)
+
+# Examine the data
+str(dat1)
+summary(dat1)
+
+# Examine the means and standard deviations of each NASA-TLX dimension 
+# (mental demand, physical demand, temporal demand, performance, effort, and frustration)
+mean(dat1$mental)
+mean(dat1$physical)
+mean(dat1$temporal)
+mean(dat1$performance)
+mean(dat1$effort)
+mean(dat1$frustration)
+
+sd(dat1$mental)
+sd(dat1$physical)
+sd(dat1$temporal)
+sd(dat1$performance)
+sd(dat1$effort)
+sd(dat1$frustration)
+```
+### Conduct a Test
+Now we will conduct a t-test to compare the sample mean from mental demand (5.45) with the sample mean from previous publishing involving normal
+workload (4.5).
+```{r}
+t.test(dat1$mental, mu = 4.5)
+```
+Now we will conduct a t-test to compare the sample mean from physical demand (4.646) with the sample mean from previous publishing involving normal
+workload (4.5).
+```{r}
+t.test(dat1$physical, mu = 4.5)
+```
+
+Now we will conduct a t-test to compare the sample mean from temporal demand (5.60) with the sample mean from previous publishing involving normal
+workload (4.5).
+```{r}
+t.test(dat1$temporal, mu = 4.5)
+```
+
+Now we will conduct a t-test to compare the sample mean from performance (5.48) with the sample mean from previous publishing involving normal
+workload (4.5).
+```{r}
+t.test(dat1$performance, mu = 4.5)
+```
+
+Now we will conduct a t-test to compare the sample mean from effort (5.50) with the sample mean from previous publishing involving normal
+workload (4.5).
+```{r}
+t.test(dat1$effort, mu = 4.5)
+```
+
+Now we will conduct a t-test to compare the sample mean from frustration (4.60) with the sample mean from previous publishing involving normal
+workload (4.5).
+```{r}
+t.test(dat1$frustration, mu = 4.5)
+```
+
+### Assess Positive Association
+Now, we will check for the possibility of positive association between mental, physical, and temporal demands. 
+
+## 1b) Summary of Analyses
+..
+
+# 2: Summer Youth Development Program
+## Data Analyses (SPSS)
+See Attached Document (SPSS_02.jpg).
+
+## 2a) Discuss any Validity Issues
+...
+
+## 2b) Summary of Analyses
+...
+
+# 3: CSSA Predicted Job Performance
+## 3a) Data Analyses (R)
+### Load & Examine the Dataset
+```{r}
+# Load the dataset
+dat3 <- read.csv('Data/valid.csv', header = T)
+
+# Examine the data
+str(dat3)
+summary(dat3)
+
+# Compute the correlation between CSSA scores and Performance levels.
+cor(dat3$cssa, dat3$perf)
+
+```
+The mean of *cssa* and *perf* is 25.1 and 34.06, respectively. Because *r* = 0.57, it appears that there is a positive association between *cssa* and *perf*. As *cssa* increases, *perf* increases as well. 
+
+### Calculate the Prediction
+
+```{r}
+# Predict Job Performance using CSSA scores
+pred <- lm(perf ~ cssa, data = dat3)
+summary(pred)
+
+# Find the r-squared value
+summary(pred)$r.squared
+
+# Interpret the regression slope.
+pred$coefficients
+
+# Predicted job performance if CSSA score = 10
+predict(pred, new=list(cssa = 10))
+
+```
+
+
+## 3b) Summary of Analyses
+..
+
+# 4: Training Program for Caregivers
+## 4a) Data Analyses (by hand)
+..
+
+## 4b) Calculate Degrees of Freedom
+..
+
+## 4c) Summary of Analyses
+..
