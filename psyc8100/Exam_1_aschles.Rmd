@@ -40,39 +40,39 @@ sd(dat1$effort)
 sd(dat1$frustration)
 ```
 ### Conduct a Test
-Now we will conduct a t-test to compare the sample mean from mental demand (5.45) with the sample mean from previous publishing involving normal
-workload (4.5).
+Now we will conduct a t-test to compare the sample mean from mental demand (5.45) with the sample mean from previous publishing involving normal workload (4.5).
+
 ```{r}
-t.test(dat1$mental, mu = 4.5)
+# Using the lsr package to find Cohen's d
+library(lsr)
+
+oneSampleTTest(dat1$mental, mu = 4.5)
 ```
-Now we will conduct a t-test to compare the sample mean from physical demand (4.646) with the sample mean from previous publishing involving normal
-workload (4.5).
+Now we will conduct a t-test to compare the sample mean from physical demand (4.646) with the sample mean from previous publishing involving normal workload (4.5).
+
 ```{r}
-t.test(dat1$physical, mu = 4.5)
+oneSampleTTest(dat1$physical, mu = 4.5)
+```
+Now we will conduct a t-test to compare the sample mean from temporal demand (5.60) with the sample mean from previous publishing involving normal workload (4.5).
+
+```{r}
+oneSampleTTest(dat1$temporal, mu = 4.5)
+```
+Now we will conduct a t-test to compare the sample mean from performance (5.48) with the sample mean from previous publishing involving normal workload (4.5).
+
+```{r}
+oneSampleTTest(dat1$performance, mu = 4.5)
+```
+Now we will conduct a t-test to compare the sample mean from effort (5.50) with the sample mean from previous publishing involving normal workload (4.5).
+
+```{r}
+oneSampleTTest(dat1$effort, mu = 4.5)
 ```
 
-Now we will conduct a t-test to compare the sample mean from temporal demand (5.60) with the sample mean from previous publishing involving normal
-workload (4.5).
-```{r}
-t.test(dat1$temporal, mu = 4.5)
-```
+Now we will conduct a t-test to compare the sample mean from frustration (4.60) with the sample mean from previous publishing involving normal workload (4.5).
 
-Now we will conduct a t-test to compare the sample mean from performance (5.48) with the sample mean from previous publishing involving normal
-workload (4.5).
 ```{r}
-t.test(dat1$performance, mu = 4.5)
-```
-
-Now we will conduct a t-test to compare the sample mean from effort (5.50) with the sample mean from previous publishing involving normal
-workload (4.5).
-```{r}
-t.test(dat1$effort, mu = 4.5)
-```
-
-Now we will conduct a t-test to compare the sample mean from frustration (4.60) with the sample mean from previous publishing involving normal
-workload (4.5).
-```{r}
-t.test(dat1$frustration, mu = 4.5)
+oneSampleTTest(dat1$frustration, mu = 4.5)
 ```
 
 ### Assess Positive Association
@@ -88,19 +88,40 @@ cor(dat1$mental, dat1$temporal)
 # Correlation between physical and temporal
 cor(dat1$physical, dat1$temporal)
 ```
+These results provide evidence that there is positive correlation between mental, physical, and temporal demands. In other words, there is a positive association between the three dimensions.  
 
 ## 1b) Summary of Analyses
-..
+A one sample t test was performed to evaluate whether there was a significant difference between NASA-TLX scores in mental demand and the sample mean from previous publishing involving normal workload. The average change in scoring was 5.45 (*SD* = 0.60). The test was statistically significant, *t*(24) = 7.91, *p* < .001. This provides evidence that the NASA-TLX scores in mental demand went up significantly with this simulation, compared to the sample mean from previous publishing. Cohen's *d* =  1.583.
+
+A one sample t test was performed to evaluate whether there was a significant difference between NASA-TLX scores in physical demand and the sample mean from previous publishing involving normal workload. The average change in scoring was 4.65 (*SD* = 0.67). The test was not statistically significant, *t*(24) = 1.09, *p* = 0.29. This provides evidence that the NASA-TLX scores in physical demand did not go up significantly with this simulation, compared to the sample mean from previous publishing. Cohen's *d* =  0.218.
+
+A one sample t test was performed to evaluate whether there was a significant difference between NASA-TLX scores in temporal demand and the sample mean from previous publishing involving normal workload. The average change in scoring was 5.60 (*SD* = 0.75). The test was statistically significant, *t*(24) = 7.40, *p* < .001. This provides evidence that the NASA-TLX scores in temporal demand went up significantly with this simulation, compared to the sample mean from previous publishing. Cohen's *d* =   1.48.
+
+A one sample t test was performed to evaluate whether there was a significant difference between NASA-TLX scores in performance and the sample mean from previous publishing involving normal workload. The average change in scoring was 5.48 (*SD* = 0.66). The test was statistically significant, *t*(24) = 7.47, *p* < .001. This provides evidence that the NASA-TLX scores in performance went up significantly with this simulation, compared to the sample mean from previous publishing. Cohen's *d* =   1.49.
+
+A one sample t test was performed to evaluate whether there was a significant difference between NASA-TLX scores in effort and the sample mean from previous publishing involving normal workload. The average change in scoring was 5.50 (*SD* = 0.57). The test was statistically significant, *t*(24) = 8.77, *p* < .001. This provides evidence that the NASA-TLX scores in effort went up significantly with this simulation, compared to the sample mean from previous publishing. Cohen's *d* = 1.75.
+
+A one sample t test was performed to evaluate whether there was a significant difference between NASA-TLX scores in frustration and the sample mean from previous publishing involving normal workload. The average change in scoring was 4.60 (*SD* = 0.70). The test was not statistically significant, *t*(24) = 0.73, *p* = 0.47. This provides evidence that the NASA-TLX scores in frustration did not go up significantly with this simulation, compared to the sample mean from previous publishing. Cohen's *d* = 0.15.
+
+These results provide evidence that four dimensions of the NASA-TLX (mental demand, temporal demand, performance, and effort) produce significantly higher workload than a normal workload, whereas two dimensions (physical demand and frustration) do not. 
 
 # 2: Summer Youth Development Program
 ## Data Analyses (SPSS)
-See Attached Document (SPSS_02.jpg).
+See Attached Document (SPSS_01.png).
 
 ## 2a) Discuss any Validity Issues
-...
+
 
 ## 2b) Summary of Analyses
-...
+An independent samples t test was conducted to assess whether there is a difference on measures of self-esteem between middle schoolers who participate in a summer youth development program at Clemson University versus those who do not participate in the program. The average impact for those did participate (*M* = , *SD* = ) was 
+
+To assess the effectiveness of the two types of television commercial formats, an
+independent samples t test was conducted using the commercial impact scores as the dependent
+variable. The average impact for Format B (M = 47.27, SD = 8.56) was greater than that of
+Format A (M = 30.09, SD = 6.80) and this difference was statistically significant, t(20) = 5.21, p
+< .01, η2 = .58, with 57.60% of the variance in commercial impact scores explained by the type
+of commercial format. The 95% confidence interval for the mean difference was [10.3, 24.0].
+Overall, Format B appears to be more effective than Format A, supporting Hypothesis 3.
 
 # 3: CSSA Predicted Job Performance
 ## 3a) Data Analyses (R)
