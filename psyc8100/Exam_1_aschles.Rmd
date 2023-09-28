@@ -76,7 +76,18 @@ t.test(dat1$frustration, mu = 4.5)
 ```
 
 ### Assess Positive Association
-Now, we will check for the possibility of positive association between mental, physical, and temporal demands. 
+Now, we will check for the possibility of positive association between mental, physical, and temporal demands.
+
+```{r}
+# Correlation between mental and physical
+cor(dat1$mental, dat1$physical)
+
+# Correlation between mental and temporal
+cor(dat1$mental, dat1$temporal)
+
+# Correlation between physical and temporal
+cor(dat1$physical, dat1$temporal)
+```
 
 ## 1b) Summary of Analyses
 ..
@@ -125,8 +136,6 @@ pred$coefficients
 predict(pred, new=list(cssa = 10))
 
 ```
-
-
 ## 3b) Summary of Analyses
 ..
 
