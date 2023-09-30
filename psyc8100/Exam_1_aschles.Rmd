@@ -22,23 +22,8 @@ dat1 <- read.csv('Data/chemical.csv', header = T)
 # Examine the data
 str(dat1)
 summary(dat1)
-
-# Examine the means and standard deviations of each NASA-TLX dimension 
-# (mental demand, physical demand, temporal demand, performance, effort, and frustration)
-mean(dat1$mental)
-mean(dat1$physical)
-mean(dat1$temporal)
-mean(dat1$performance)
-mean(dat1$effort)
-mean(dat1$frustration)
-
-sd(dat1$mental)
-sd(dat1$physical)
-sd(dat1$temporal)
-sd(dat1$performance)
-sd(dat1$effort)
-sd(dat1$frustration)
 ```
+
 ### Conduct a Test
 Now we will conduct a t-test to compare the sample mean from mental demand (5.45) with the sample mean from previous publishing involving normal workload (4.5).
 
@@ -88,10 +73,9 @@ cor(dat1$mental, dat1$temporal)
 # Correlation between physical and temporal
 cor(dat1$physical, dat1$temporal)
 ```
-These results provide evidence that there is positive correlation between mental, physical, and temporal demands. In other words, there is a positive association between the three dimensions.  
 
 ## 1b) Summary of Analyses
-A one sample t test was performed to evaluate whether there was a significant difference between NASA-TLX scores in mental demand and the sample mean from previous publishing involving normal workload. The average change in scoring was 5.45 (*SD* = 0.60). The test was statistically significant, *t*(24) = 7.91, *p* < .001. This provides evidence that the NASA-TLX scores in mental demand went up significantly with this simulation, compared to the sample mean from previous publishing. Cohen's *d* =  1.583.
+A one sample t test was performed to evaluate whether there was a significant difference between NASA-TLX scores in mental demand and the sample mean from previous publishing involving normal workload. The average change in scoring was 5.45 (*SD* = 0.60). The test was statistically significant, *t*(24) = 7.92, *p* < .001. This provides evidence that the NASA-TLX scores in mental demand went up significantly with this simulation, compared to the sample mean from previous publishing. Cohen's *d* =  1.583.
 
 A one sample t test was performed to evaluate whether there was a significant difference between NASA-TLX scores in physical demand and the sample mean from previous publishing involving normal workload. The average change in scoring was 4.65 (*SD* = 0.67). The test was not statistically significant, *t*(24) = 1.09, *p* = 0.29. This provides evidence that the NASA-TLX scores in physical demand did not go up significantly with this simulation, compared to the sample mean from previous publishing. Cohen's *d* =  0.218.
 
@@ -103,25 +87,19 @@ A one sample t test was performed to evaluate whether there was a significant di
 
 A one sample t test was performed to evaluate whether there was a significant difference between NASA-TLX scores in frustration and the sample mean from previous publishing involving normal workload. The average change in scoring was 4.60 (*SD* = 0.70). The test was not statistically significant, *t*(24) = 0.73, *p* = 0.47. This provides evidence that the NASA-TLX scores in frustration did not go up significantly with this simulation, compared to the sample mean from previous publishing. Cohen's *d* = 0.15.
 
-These results provide evidence that four dimensions of the NASA-TLX (mental demand, temporal demand, performance, and effort) produce significantly higher workload than a normal workload, whereas two dimensions (physical demand and frustration) do not. 
+These results provide evidence that four dimensions of the NASA-TLX (mental demand, temporal demand, performance, and effort) produce significantly higher workload than a normal workload, whereas two dimensions (physical demand and frustration) do not. Additionally, to investigate whether mental, physical and temporal demands were linearly related, we estimated the correlation between the three variables. Therefore, as mental demands increased, physical demands tended to increase (*r* = 0.43). Similarly, as mental demands increased, temporal demands also increased (*r* = 0.02). Additionally, as physical demands increased, temporal demands also increased (*r* = 0.29). These results indicate a positive relationship between all three dimensions. 
 
 # 2: Summer Youth Development Program
 ## Data Analyses (SPSS)
 See Attached Document (SPSS_01.png).
 
 ## 2a) Discuss any Validity Issues
-
+Experimental designs provide stronger validity when the conditions are randomly assigned. This is because random assignment allows researchers to unambiguously interpret how and why the mean differences exist (or do not exist). Considering the participants in this study were not randomly assigned to their conditions, it leads to potential validity issues. Due to a number of potential confounding variables, it is difficult to understand why the differences in the two groups exist. For instance, does the socio-economic status and home life of the middle schoolers who did (or did not) participate in the summer program also have an impact on their levels of self-esteem and/or self-efficacy? 
 
 ## 2b) Summary of Analyses
-An independent samples t test was conducted to assess whether there is a difference on measures of self-esteem between middle schoolers who participate in a summer youth development program at Clemson University versus those who do not participate in the program. The average impact for those did participate (*M* = , *SD* = ) was 
+An independent samples t test was conducted to assess whether there is a difference on measures of self-esteem between middle schoolers who participate in a summer youth development program at Clemson University versus those who do not participate in the program. The average impact for those who did participate (*M* = 4.87, *SD* = 1.09) was less than that of those who did not participate (*M* = 4.97, *SD* = 0.97) and this difference was not statistically significant, *t*(137) = 0.59, *p* = 0.58. The 95% confidence interval for the mean difference was [-0.25, 0.44]. Cohen's *d* = .095. 
 
-To assess the effectiveness of the two types of television commercial formats, an
-independent samples t test was conducted using the commercial impact scores as the dependent
-variable. The average impact for Format B (M = 47.27, SD = 8.56) was greater than that of
-Format A (M = 30.09, SD = 6.80) and this difference was statistically significant, t(20) = 5.21, p
-< .01, η2 = .58, with 57.60% of the variance in commercial impact scores explained by the type
-of commercial format. The 95% confidence interval for the mean difference was [10.3, 24.0].
-Overall, Format B appears to be more effective than Format A, supporting Hypothesis 3.
+An independent samples t test was conducted to assess whether there is a difference on measures of generalized self-efficacy between middle schoolers who participate in a summer youth development program at Clemson University versus those who do not participate in the program. The average impact for those who did participate (*M* = 6.79, *SD* = 1.02) was greater than that of those who did not participate (*M* = 6.20, *SD* = 0.92) and this difference was statistically significant, *t*(137) = -3.62, *p* < .001. The 95% confidence interval for the mean difference was [-0.92, -0.27]. Overall, participation in the program appears to be more effective at raising generalized self-efficacy levels than not participating. Cohen's *d* = -0.62.
 
 # 3: CSSA Predicted Job Performance
 ## 3a) Data Analyses (R)
@@ -134,15 +112,15 @@ dat3 <- read.csv('Data/valid.csv', header = T)
 str(dat3)
 summary(dat3)
 
-# Compute the correlation between CSSA scores and Performance levels.
-cor(dat3$cssa, dat3$perf)
-
 ```
-The mean of *cssa* and *perf* is 25.1 and 34.06, respectively. Because *r* = 0.57, it appears that there is a positive association between *cssa* and *perf*. As *cssa* increases, *perf* increases as well. 
+The mean of *cssa* and *perf* is 25.1 and 34.06, respectively.
 
 ### Calculate the Prediction
 
 ```{r}
+# Compute the correlation between CSSA scores and Performance levels.
+cor(dat3$cssa, dat3$perf)
+
 # Predict Job Performance using CSSA scores
 pred <- lm(perf ~ cssa, data = dat3)
 summary(pred)
@@ -153,19 +131,55 @@ summary(pred)$r.squared
 # Interpret the regression slope.
 pred$coefficients
 
+# Plot the data
+par(las = 1, mar = c(4.1, 4.1, 1.1, 1.1))
+plot(dat3$cssa, dat3$perf,
+pch = 16,
+xlab = "CSSA Scores",
+ylab = "Performance Level")
+grid()
+abline(a = pred$coefficients, col = "blue")
+
 # Predicted job performance if CSSA score = 10
 predict(pred, new=list(cssa = 10))
 
 ```
+
 ## 3b) Summary of Analyses
-..
+
+To investigate whether CSSA scores and performance levels were linearly related, we estimated the correlation between the two variables, *r* = .57. That is, as CSSA scores increased, performance levels tended to increase. To determine whether CSSA scores predict job performance, we conducted a simple linear regression where performance level regressed on CSSA scores. Results indicate that the model was statistically significant, *F* (182) = 87.58 (*p* < .001), with $r^2$ = 0.32. Based on our model, for every one-unit increase in CSSA scores, performance levels are expected to increase by 0.53 units ($B$ = .53, *p* < .001). Additionally, we determined that a person's job performance would be 25.98, if their CSSA score was 10. 
 
 # 4: Training Program for Caregivers
 ## 4a) Data Analyses (by hand)
-..
+```{r}
+# Compare whether there is a difference in the means between Control/Training groups on Patient Care
+ctrl.mean <- 3.78
+ctrl.sd <- 0.46
+ctrl.n <- 40
+
+cares.mean <- 4.20
+cares.sd <- 0.51
+cares.n <- 38
+
+# Use the equation for a two-independent samples t-test
+t.stat <- (cares.mean - ctrl.mean)/(sqrt((((cares.mean^2)/cares.n) + ((ctrl.mean^2)/ctrl.n))))
+t.stat
+```
+
 
 ## 4b) Calculate Degrees of Freedom
-..
+```{r}
+# Assume that our statistic is called stat
+stat <- t.stat
+abs(stat)
+
+# Calculate the degrees of freedom
+(df <- ctrl.n + cares.n - 2)
+
+# Obtain the two-tailed p value
+pt(abs(stat), df, lower.tail = F)*2
+```
 
 ## 4c) Summary of Analyses
-..
+An independent samples t test was conducted to assess whether there is a difference in patient care between the CARES training program for caregivers of dementia, and the control group. The average impact for those who completed the CARE program (*M* = 4.20, *SD* = 0.51) was more than that of those in the control group (*M* = 3.78, *SD* = 0.46) and this difference was not statistically significant, *t*(76) = 0.46, *p* = 0.64. 
+
