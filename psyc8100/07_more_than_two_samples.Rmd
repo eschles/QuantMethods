@@ -1,0 +1,131 @@
+---
+title: 'Module 07: More than Two Sample Means'
+author: 'Patrick J. Rosopa, Ph.D.'
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output:
+  pdf_document:
+    toc: yes
+    toc_depth: 3
+  word_document:
+    toc: yes
+    toc_depth: 3
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Objective
+
+-   Practice one-way between-subjects analysis of variance.
+-   Examine the distributions and descriptive statistics.
+-   Compute the omnibus *F* test and interpret results. We will conduct comparisons in the next module.
+
+### Description of data
+
+The data for this example is taken from the Maxwell, Delaney, and Kelley textbook in Table 3.3. It was a study on manipulating mood states in controlled laboratory settings. The file name is `MDK_table_3.3.csv`.
+
+### Import data
+
+Recall that there are several ways to load a dataset into `R`. We will read in a .csv file. Download the data and ensure it is located in your project. In this example, the file is located in a folder called Data in my PSYC8100 project.
+
+Read in the .csv file and assign to an object called mood.
+
+```{r import data}
+mood <- read.csv("Data/MDK_table_3.3.csv")
+str(mood)
+```
+
+Using the `str()` function, it is evident that the data frame has 30 rows and 2 columns (or variables). The variables are Condition and Rating. Rating is a vector of integers (whole numbers). Notice that Condition is also a vector of integers. However, Condition should not be treated as a numeric or integer variable. Condition should be a `factor`. We know that Condition takes the values 1, 2, and 3 and we know the labels that these numbers represent.
+
+Change Condition to a `factor` and replace the integer vector.
+
+### Convert categorical variables to factors
+
+It is a good idea to ensure that any categorical variables are properly converted to factors. Be sure that you know how the levels are coded. With this data, we are told that 1 = "Pleasant", 2 = "Neutral", and 3 = "Unpleasant."
+
+```{r}
+mood$Condition <- factor(mood$Condition,
+                         labels = c("Pleasant", "Neutral", "Unpleasant"))
+
+# Use str() again to check our data frame.
+
+str(mood)
+
+# We can also doublecheck the labels that we assigned to the
+# three levels of Condition. We see that there are 10 scores in
+# each of the three levels of Condition.
+
+levels(mood$Condition)
+summary(mood)
+```
+
+### Examine the data
+
+We can calculate descriptive statistics by condition. Note any general trends with the means.
+
+```{r eda}
+aggregate(Rating ~ Condition, data = mood, mean)
+aggregate(Rating ~ Condition, data = mood, sd)
+# aggregate(Rating ~ Condition, data = mood, length)
+```
+
+In the plot below, we plot each mean with the confidence interval. We use the `gplots` library.
+
+```{r message = F}
+library(gplots)
+
+plotmeans(Rating ~ Condition, mood, las = 1, 
+          ylab = "Knowledge", 
+          xlab = "Condition", 
+          n.label = F, 
+          connect = F)
+```
+
+### Conduct one-way analysis of variance
+
+There are many ways in which to conduct a one-way analysis (ANOVA) in `R`. We will first focus on using the `lm()` function because it is the most general. We could have conducted analyses involving one sample mean and two sample means also using the `lm()` function. However, this would have required a deeper understanding of the *y*-intercept and learning about dummy-variables. We will cover these in more detail in the next few modules.
+
+As a reminder, in the `lm()` function, the outcome is the first argument. To the right of the \~ is the independent variable. After the comma, use the `data` argument. Provide the name of the data frame that contains the variables. Rating is the outcome. Condition is the independent variable. The data frame is mood.
+
+```{r}
+mood.fit <- lm(Rating ~ Condition, data = mood)
+summary(mood.fit)
+```
+
+Use `summary()` on the fitted model. We see that the multiple *R*^2^ = .642. Thus, in our one-way ANOVA, the mood induction condition explains about 64.2% of variance in the Global Affect Ratings. Notice also that the overall *F* statistic was 24.23 on 2 and 27 degrees of freedom and was statistically significant. The *p* value is so small that scientific notation is used. The *p* value is .0000009421. When the *p* value is very small, do not report it this way. For APA style, report the exact *p* value when possible. However, when the *p* value is very small, simply report it as *p* \< .001. The test should be reported as *F*(2,27) = 24.23, *p* \< .001.
+
+Reject the the null hypothesis. The three population means are not equal to one another. Keep in mind that this does not suggest that all three population means differ from another. We only have evidence to suggest that they are not all coming from the same population.
+
+```{r}
+# Use anova() to obtain the ANOVA summary table.
+
+anova(mood.fit)
+```
+
+The results from the ANOVA summary table above do not tell a different story from what we learned above when using the `lm()` function. However, we do obtain the other sums-of-squares. Recall that the total sums-of-squares 72.67 was partitioned into a sum-of-squares between (46.667) and sum-of-squares within (26.00). 46.667 + 26 = 72.67
+
+We can check this by simply calculating the sample variance of the dependent variable and multiplying by *n*-1.
+
+```{r}
+var(mood$Rating)*(dim(mood)[1] - 1)
+```
+
+Although we discovered that the three population means are not equal, the analysis does not stop there. We need to uncover exactly how the three conditions differ. We will learn about post hoc comparisons (contrasts) in Module 8.
+
+NOTE: If the omnibus *F* test is NOT statistically significant, then analyses would stop because this would suggest that the population means do not differ from one another. There is no need to perform any post hoc comparisons among the groups because the independent variable did not have an "effect" on the dependent variable.
+
+### Check homogeneity of variance assumption
+
+The one-way analysis of variance requires three assumptions: normality, independence, and homogeneity of variance. For now, we will focus on the homogeneity of variance assumption. With this assumption, the population variance in each group should not differ from one another. We will use Levene's test in the `car` package to check this assumption. We do NOT want the test to be statistically significant. In other words, we are hoping that the *p* value will be greater than $\alpha$, typically, $\alpha = .05$ or .01..
+
+```{r message = F}
+library(car)
+leveneTest(Rating ~ Condition, data = mood, center = mean)
+```
+
+If we assume that $\alpha = .05$, we would conclude that the population variance of Global Affect Ratings does not differ across the three conditions. Levene's test is a one-way ANOVA on the absolute value of the residuals with respect to the group mean. A more robust version of this test is known as the Brown-Forsyth test. It is a one-way ANOVA on the absolute value of the residuals with respect to the group median. We can conduct this version of the test below by removing the optional argument regarding the center. We arrive at the same interpretation. The population variance on the Global Affect Rating does not differ across conditions.
+
+```{r}
+leveneTest(Rating ~ Condition, data = mood)
+```

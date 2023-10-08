@@ -1,0 +1,128 @@
+---
+title: "Module 7 Assignment"
+author: "Alex Schlesener"
+date: "2023-10-08"
+output:
+    pdf_document:
+      toc: yes
+      toc_depth: 3
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Instructions
+
+You have data from participants who were on one of four types of diets (A, B, C, or D). After three months of dieting, the amount of weight loss was recorded in lb. Determine whether the type of diet was equally effective. Assume $\alpha$ = .05. (a) Conduct relevant analyses by hand to obtain the test statistic. (b) Conduct the appropriate analysis in SPSS and R to confirm the test statistic obtained in part a. (c) Write a brief APA style summary of your Results.
+
+### Import Data
+
+```{r}
+Diet <- read.csv("Data/weightloss.csv")
+str(Diet)
+```
+
+After utilizing the 'str()', we can see that the data frame, "Diet", has 23 rows and 2 columns (variables). The two variables are Weightloss and Diet. Both variables are vectors of integers; however, Diet should be treated as a 'factor'. We will convert 'Diet' to a factor and replace the integer vector to its appropriate code: "1" = "A", "2" = "B", "3" = "C", and "4" = "D".
+
+```{r}
+Diet$diet <- factor(Diet$diet, labels = c("A", "B", "C", "D"))
+str(Diet)
+levels(Diet$diet)
+summary(Diet)
+```
+
+## Examine the Data
+
+```{r}
+# Calculate the Descriptive Statistics by Condition
+aggregate(weightloss ~ diet, data = Diet, mean)
+aggregate(weightloss ~ diet, data = Diet, sd)
+
+# Plot each mean with the confidence interval using the gplots library.
+library(gplots)
+
+plotmeans(weightloss ~ diet, Diet, las = 1,
+          ylab = "Weightloss",
+          xlab = "Diet",
+          n.label = F,
+          connect = F)
+
+```
+
+## A) Conduct Releveant Analyses by hand to Obtain the test statistic
+
+### Conduct One-Way Analysis of Variance (By-hand)
+
+```{r}
+# Define the sample means of each group
+Y1.mean <- 11.0
+Y2.mean <- 16.4
+Y3.mean <- 18.0
+Y4.mean <- 13.2
+
+# Define the N in each group
+Y1.N <- 6
+Y2.N <- 5
+Y3.N <- 7
+Y4.N <- 5
+
+# Calculate the grand mean
+YG.mean <- (Y1.mean + Y2.mean + Y3.mean + Y4.mean) / 23.0
+
+# Calculate Sum-of-Squares Between
+SS.B <- (Y1.N*(Y1.mean - YG.mean)^2) + (Y2.N*(Y2.mean - YG.mean)^2) + (Y3.N*(Y3.mean - YG.mean)^2) + (Y4.N*(Y4.mean - YG.mean)^2)
+
+# Calculate Sum-of-Squares Within
+# Group A
+SS.W.A <- (12 - Y1.mean)^2 + (10 - Y1.mean)^2 + (13 - Y1.mean)^2 + (9 - Y1.mean)^2 + (13 - Y1.mean)^2 + (9 - Y1.mean)^2
+
+SS.W.B <- (14 - Y2.mean)^2 + (17 - Y2.mean)^2 + (22 - Y2.mean)^2 + (14 - Y2.mean)^2 + (15 - Y2.mean)^2
+
+SS.W.C <- (18 - Y3.mean)^2 + (16 - Y3.mean)^2 + (21 - Y3.mean)^2 + (18 - Y3.mean)^2 + (17 - Y3.mean)^2 + (18 - Y3.mean)^2 + (18 - Y3.mean)^2
+
+SS.W.D <- (12 - Y4.mean)^2 + (11 - Y4.mean)^2 + (13 - Y4.mean)^2 + (16 - Y4.mean)^2 + (14 - Y4.mean)^2
+
+# Total SSQ Within
+SS.W <- SS.W.A + SS.W.B + SS.W.C + SS.W.D
+
+# Calculate Sum-of-Squares Total
+SS.T <- SS.B + SS.W
+
+# Calculate df Between Groups (alpha - 1)
+df.B <- 4 - 1
+
+# Calculate df Within Groups (n - alpha)
+df.W <- 23 - 4
+
+# Estimate Variance Between Groups
+MS.B <- SS.B / df.B
+
+# Estimate Variance Within Groups
+MS.W <- SS.W / df.W 
+
+# Calculate the F Statistic = (Variance between Groups)/(Variance Within Groups)
+F.stat <- MS.B / MS.W
+
+```
+
+## B) Conduct the Appropriate Analyses in SPSS and R to confirm the test statistic
+
+### Conduct One-Way Analysis of Variance (SPSS)
+
+
+### Conduct One-Way Analysis of Variance (R)
+
+```{r}
+oneway.diet <- lm(weightloss ~ diet, data=Diet)
+summary(oneway.diet)
+
+anova(oneway.diet)
+
+# Check Homogeneity of Variance
+library(car)
+
+leveneTest(weightloss ~ diet, data=Diet, center=mean)
+```
+
+## C) Write a Brief APA Style Summary of Results
