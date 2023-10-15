@@ -1,0 +1,260 @@
+---
+title: 'Module 08: Comparisons'
+author: 'Patrick J. Rosopa, Ph.D.'
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output:
+  pdf_document:
+    toc: yes
+    toc_depth: 3
+  word_document:
+    toc: yes
+    toc_depth: 3
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Objective
+
+-   Assuming that the omnibus *F* test is significant, conduct comparisons of the means.
+-   Conduct both pairwise and complex comparisons.
+
+### Description of data
+
+This data is from the module on comparisons. There are three treatments (Control, Standard, or Experimental). The dependent variable was *efficacy*.
+
+### Import data
+
+Recall that there are several ways to load a dataset into `R`. We will read in a .csv file. Download the data and ensure it is located in your project. In this example, the file is located in a folder called Data in my PSYC8100 project. Read in the .csv file and assign to an object called `TreatEfficacy`.
+
+```{r import data}
+TreatEfficacy <- read.csv('Data/contrasts.csv')
+str(TreatEfficacy)
+summary(TreatEfficacy)
+```
+
+We see that we have a data frame with 15 rows and 2 columns. The variables are Efficacy and Treatment. Efficacy is a vector of integers (whole numbers). Notice that Treatment is also a vector of integers. However, Treatment should not be treated as a numeric or integer variable. Treatment should be a factor. We know that Treatment takes the values 1, 2, and 3 and we know the labels that these numbers represent. Change Treatment to a factor and replace the integer vector.
+
+### Convert categorical variables to factors
+
+It is a good idea to ensure that any categorical variables are properly converted to factors. Be sure that you know how the levels are coded. With this data, we are told that 1 = "Control", 2 = "Standard", and 3 = "Experimental."
+
+```{r}
+TreatEfficacy$Treatment <- factor(TreatEfficacy$Treatment,
+                                  labels = c('Control', 'Standard', 'Experimental'))
+
+# Use str() again to check our data frame.
+
+str(TreatEfficacy)
+
+# We can also doublecheck the labels that we assigned to the
+# three levels of Treatment. We see that there are 4 scores in the
+# Control group, 6 scores in the Standard group, and 5 scores in the
+# Experimental group. The total sample size is, of course, 15.
+
+levels(TreatEfficacy$Treatment)
+summary(TreatEfficacy)
+```
+
+### Examine the data
+
+We can calculate descriptive statistics by condition. Note any general trends with the means. 
+
+```{r}
+aggregate(Efficacy ~ Treatment, data = TreatEfficacy, mean)
+aggregate(Efficacy ~ Treatment, data = TreatEfficacy, sd)
+aggregate(Efficacy ~ Treatment, data = TreatEfficacy, length)
+```
+
+Below, we plot each mean with the confidence interval. We use the `gplots` library.
+
+```{r message = F}
+library(gplots)
+
+plotmeans(Efficacy ~ Treatment, TreatEfficacy, las = 1, 
+          ylab = "Efficacy", 
+          xlab = "Treatment", 
+          n.label = F, 
+          connect = F)
+
+axis(3, at = 1:3, labels = paste("n = ", c(4,6,5)))
+```
+
+We can also examine boxplots or histograms by condition to gain further insight about our data.
+
+```{r}
+boxplot(TreatEfficacy$Efficacy ~ TreatEfficacy$Treatment, col = blues9,
+        las = 1,
+        xlab = "Treatment",
+        ylab = "Efficacy",
+        main = "")
+
+axis(3, at = 1:3, labels = paste("n = ", c(4,6,5)))
+```
+
+### Conduct one-way analysis of variance
+
+There are many ways in which to conduct a one-way ANOVA in `R`. We will first focus on using the `lm()` function because it is the most general. We could have conducted analyses involving one sample mean and two sample means also using the `lm()` function. However, this would have required a deeper understanding of the Y-intercept and learning about dummy-variables. We will cover these in more detail in the next few modules.
+
+As a reminder, in the `lm()` function, the outcome is the first argument. To the right of the ~ is the independent variable. After the comma, we typically use the `data` argument. Provide the name of the data frame that contains the variables. Efficacy is the dependent variable (outcome). Treatment is the independent variable (predictor). The data frame is TreatEfficacy.
+
+Here, I explain an important aspect of all functions in `R`. It is similar to Python in this regard. Recall that I use the `data` argument and then we specify the name of the data frame that `R` will search when looking for the variables. Notice below that I do not use `data=`. Instead, I simply use the name of the data frame. The reason for this has to do with positional arguments. In the `lm()` function, `R` knows to expect a formula first. Then, after the comma, various optional arguments can be used by specifying the name of the argument like `data=`, `subset=`, `weights=`, and so forth. If I do not use the `data=`, `R` will simply assume that I meant `data=TreatEfficacy` because the `data=` argument is positioned after the formula.
+
+```{r}
+oneway.fit2 <- lm(Efficacy ~ Treatment, TreatEfficacy)
+summary(oneway.fit2)
+```
+
+Use `summary()` on the fitted model. We see that the multiple *R*^2^ is .6585. Thus, in our one-way ANOVA, the Treatment conditions explain about 65.9% of variance in the Efficacy scores. Notice also that the overall *F* statistic was 11.57 on 2 and 12 degrees of freedom and was statistically significant. The *p* value was .001587. For APA style, report the exact *p* value. Here, we can use *p* = .002. However, when the *p* value is very small, simply report it as *p* < .001.
+
+The three population means on Efficacy are not equal to one another. Keep in mind that this does not suggest that they all differ from another. We only have evidence to suggest that they are not all coming from the same population.
+
+```{r}
+# Use anova() to obtain the ANOVA summary table.
+
+anova(oneway.fit2)
+```
+
+Of course, the results from the ANOVA summary table do not tell a different story from what we learned above when using the `summary()` function, in this case. However, we do obtain the other sums-of-squares. The total sums-of-squares will be 1573.3 + 816.0 = 2389.3.
+
+We can check this by simply calculating the sample variance of the dependent variable and multiplying by *n*-1.
+
+```{r}
+var(TreatEfficacy$Efficacy)*(15-1)
+```
+
+Thus, we partitioned the total sums-of-squares (2389.3) into variability between-groups (1573.3) and within-groups (816.0).
+
+Although we discovered that the three population means are not equal, the analysis does not stop there. We need to uncover exactly how the three groups differ.
+
+NOTE: If the omnibus *F* test is NOT statistically significant, then analyses would stop because this would suggest that the population means do not differ from one another. There is no need to perform any post hoc comparisons among the groups because the independent variable did not have an "effect" on the dependent variable.
+
+### Check homogeneity of variance assumption
+
+The one-way analysis of variance requires three assumptions: normality, independence, and homogeneity of variance. For now, we will focus on the homogeneity of variance assumption. With this assumption, the population variance in each group should not differ from one another. We will use Levene's test in the `car` package to check this assumption. We do NOT want the test to be statistically significant. In other words, we are hoping that the *p* value will be greater than .05.
+
+```{r message = F}
+library(car)
+leveneTest(Efficacy ~ Treatment, data = TreatEfficacy, center = mean)
+```
+
+If we assume that $\alpha = .05$, we would conclude that the population variance of *efficacy* does not differ across the three conditions. Levene's test is a one-way ANOVA on the absolute value of the residuals with respect to the group mean. A more robust version of this test is known as the Brown-Forsyth test. It is a one-way ANOVA on the absolute value of the residuals with respect to the group median. We can conduct this version of the test below by removing the optional argument regarding the center. We arrive at the same interpretation. The population variance of *efficacy* does not differ across the three treatment conditions.
+
+```{r}
+leveneTest(Efficacy ~ Treatment, data = TreatEfficacy)
+```
+
+### Comparisons among Means
+
+We reject the null hypothesis above. We have evidence to suggest that the population means are not equal. Now what?
+
+We should conduct comparisons of the means. Remember that we had two fundamental Research Questions that we wanted to answer. See slides.
+
+1.    Is there a difference between receiving a Treatment vs. receiving nothing?
+2.    Is there a difference between Experimental vs. Standard?
+
+We will construct contrasts that address our theoretical questions. Create two numeric vectors. Because we know the order of the levels are Control, Standard, and Experimental, be sure that the contrast coefficients align accordingly with the levels.
+
+```{r}
+# The levels, in order, are Control, Standard, and Experimental.
+
+c1 <- c(2, -1, -1)
+c2 <- c(0, 1, -1)
+```
+
+Assign these contrasts to our independent variable in `R` using the `contrasts()` function. Here, we are specifying particular contrasts that test our primary hypotheses. `cbind()` is a function that binds/combines vectors column-wise.
+
+```{r}
+contrasts(TreatEfficacy$Treatment) <- cbind(c1, c2)
+
+# We can also take a quick look at the contrasts and how the coding 
+# is being done internally in R.
+
+contrasts(TreatEfficacy$Treatment)
+```
+
+Now, we refit the model with our theory-driven set of contrasts.
+
+```{r}
+oneway.fit3 <- lm(Efficacy ~ Treatment, TreatEfficacy)
+summary(oneway.fit3)
+```
+
+Based on the statistically significant contrasts, we know that the mean of (Standard and Experimental) vs. the mean of Control is significantly different (c1). It is better to receive some kind of treatment than to receive nothing. We also know that it is better to be in the Experimental condition than in the Standard condition (c2).
+
+The ANOVA summary table below has not changed. However, the effect of Treatment on the dependent variable (Efficacy) has now been decomposed into two contrasts.
+
+```{r}
+anova(oneway.fit3)
+```
+
+To obtain the estimated eta-squared (proportion of variance accounted for in the dependent variable due to the independent variable), we can use the `lsr` package.
+
+```{r}
+library(lsr)
+etaSquared(oneway.fit3)
+```
+
+Note that for a one-way ANOVA, the eta-squared and partial eta-squared will be the same. We will discuss the differences between eta-squared and partial eta-squared once we have two or more independent variables (for example, two-way ANOVA, mixed model, etc.). The eta-squared is the same as the multiple *R*^2^ that is displayed in the `summary()` function.
+
+### Multiple comparisons using Tukey's HSD, Bonferroni, or Scheffe
+
+Instead of contrasts like those we specified above, sometimes researchers may be interested in testing all possible pairwise comparisons while still ensuring that the experimentwise error rate is controlled at $\alpha$ (e.g., .05). Be sure to install and load the `emmeans` package.
+
+```{r message = F}
+library(emmeans)
+```
+
+To learn more about `emmeans` and access the vignettes with examples, use help. `help(emmeans)`
+
+Here, I focus on using `emmeans` for three approaches when we are interested in testing multiple comparisons: Tukey's HSD, Scheffe, and Bonferroni.
+
+1.) Tukey's Honestly Significant Difference (HSD). The first argument is the name of your fitted model. My model was called `oneway.fit3`. `pairwise` specifies that we want all pairwise comparisons. Then, to the right of the ~, we specify the independent variable exactly as it appears in our model. The independent variable was called Treatment.
+
+```{r}
+eff.emm <- emmeans(oneway.fit3, pairwise ~ Treatment)
+summary(eff.emm)
+```
+
+The `summary()` function when used on this object displays the means by group as well as the mean differences and which mean differences were statistically significant, while controlling overall Type I error rate at .05. Because there were only three groups, `R` presents all pairwise mean differences.
+
+There are three pairwise mean differences. Notice the difference between Control - Standard = 82 - 92 = -10. This mean difference was NOT statistically significant (*p* = .187), suggesting that mean Efficacy did not differ between the Control condition and Standard condition. The difference between Control - Experimental = 82 - 108 = -26. This mean difference was statistically significant (*p* = .0014). This suggests that mean Efficacy was significantly greater in the Experimental condition than the Control condition. The difference between Standard - Experimental = 92 - 108 = -16. This mean difference was statistically significant (*p* = .0192), suggesting that mean Efficacy was significantly higher in the Experimental condition than in the Standard condition.
+
+2.) Scheffe
+
+```{r}
+summary(eff.emm, adjust = "Scheffe")
+```
+
+Using Scheffe's procedure results in the same general pattern of results that we had when using Tukey's HSD above. Notice, however, that the *p*-values are slightly larger. Scheffe's procedure tends to be a more conservative approach relative to other procedures like Tukey's HSD.
+
+3.) Bonferroni
+
+```{r}
+summary(eff.emm, adjust = "Bonferroni")
+```
+
+Bonferroni procedure is very popular when conducting multiple comparisons. However, this approach can be very conservative if you have many comparisons to test. Imagine, for example, if you had 8 groups to compare on an outcome. There would be 28 pairwise comparisons. If you have many comparisons and they are all pairwise, it may be better to simply use Tukey's HSD.
+
+### Using `aov()` and `TukeyHSD()` function
+
+We can use the `aov()` function to fit analysis of variance models of different types. Above, we used `lm()` because I believe that it is much more general. Here is `aov()` nonetheless.
+
+```{r}
+oneway.fit3b <- aov(Efficacy ~ Treatment, data = TreatEfficacy)
+summary(oneway.fit3b)
+
+# Comparisons of means using Tukey's HSD
+
+TukeyHSD(oneway.fit3b)
+plot(TukeyHSD(oneway.fit3b, "Treatment"))
+
+# We can also use emmeans package for Tukey's, Scheffe, and Bonferroni.
+
+eff.emm <- emmeans(oneway.fit3b, pairwise ~ Treatment)
+summary(eff.emm)
+summary(eff.emm, adjust = "Scheffe")
+summary(eff.emm, adjust = "Bonferroni")
+```
+

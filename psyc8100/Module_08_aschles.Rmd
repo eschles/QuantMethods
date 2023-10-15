@@ -1,0 +1,138 @@
+---
+title: "Module 8 Assignment"
+author: "Alex Schlesener"
+date: "2023-10-15"
+output:
+    pdf_document:
+      toc: yes
+      toc_depth: 3
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Instructions
+You have data from participants who were on one of four types of diets (A, B, C, D). After three months, the amount of weight loss was recorded in lb. In Module 7, you already completed the one-way ANOVA using hand calculations and you used SPSS and R. You conducted this analysis at $\alpha$ = .05. Recall that you rejected the null hypothesis. In Module 7, you also wrote a brief summary including the results of your statistical test and you reported an index of effect size. 
+
+### Import Data
+
+```{r}
+Diet <- read.csv("Data/weightloss.csv")
+str(Diet)
+```
+
+After utilizing the 'str()', we can see that the data frame, "Diet", has 23 rows and 2 columns (variables). The two variables are Weightloss and Diet. Both variables are vectors of integers; however, Diet should be treated as a 'factor'. We will convert 'Diet' to a factor and replace the integer vector to its appropriate code: "1" = "A", "2" = "B", "3" = "C", and "4" = "D".
+
+```{r}
+Diet$diet <- factor(Diet$diet, labels = c("A", "B", "C", "D"))
+str(Diet)
+levels(Diet$diet)
+summary(Diet)
+```
+
+## Examine the Data
+
+```{r}
+# Calculate the Descriptive Statistics by Condition
+aggregate(weightloss ~ diet, data = Diet, mean)
+aggregate(weightloss ~ diet, data = Diet, sd)
+
+# Plot each mean with the confidence interval using the gplots library.
+library(gplots)
+
+plotmeans(weightloss ~ diet, Diet, las = 1,
+          ylab = "Weightloss",
+          xlab = "Diet",
+          n.label = F,
+          connect = F)
+
+```
+
+### Conduct One-Way Analysis of Variance (R)
+
+```{r}
+oneway.diet <- lm(weightloss ~ diet, data=Diet)
+summary(oneway.diet)
+
+anova(oneway.diet)
+
+# Check Homogeneity of Variance
+library(car)
+
+leveneTest(weightloss ~ diet, data=Diet, center=mean)
+```
+
+## A) Analyze Contrasts
+Provide contrast coefficients that test three mutually orthogonal comparisons and test your contrasts in R. Summarize the results of your planned comparisons.
+
+Conduct comparisons of the means using the following RQs:
+
+1.    Is there a difference in weight loss between B and D? 
+2.    Is there a difference in weight loss between A and C?
+3.    Is there a difference in weight loss between A and the other diet options (B, C & D)?
+
+### Define and Test Contrasts in R
+```{r}
+
+# Define the Contrasts
+# c(A, B, C, D)
+c1 <- c(0, 1, 0, -1) # RQ1
+c2 <- c(1, 0, -1, 0) # RQ2
+c3 <- c(3, -1, -1, -1) # RQ3
+
+# Test the Contrasts
+contrasts(Diet$diet) <- cbind(c1, c2, c3)
+
+# Check the Contrasts
+contrasts(Diet$diet)
+
+# Refit the model 
+oneway.diet3 <- lm(weightloss ~ diet, Diet)
+summary(oneway.diet3)
+```
+### Summary of Results
+To assess whether the type of diet had an impact on weight loss, we conducted a one-way analysis of variance. Weight loss was the dependent variable and type of diet (with four levels) was the independent variable. Diet type had statistical significance, F(3, 19) = 12.66, *p* < .001. In addition, the effect size ($\eta^2$ = .67) indicated that 66.7% of the variance in weight loss can be explained by the type of diet. 
+
+Since the type of diet was found to be related to weight loss, we evaluated the significance of three mutually orthogonal contrast coefficients. The difference in weight loss between those who used diet option B (*M* = 16.4, *SD* = 3.36) and option D (*M* = 16.4, *SD* = 1.92) was proven to be statistically significant (*t*(2.2, 19) = 1.60, *p* = 0.03), providing support for Hypothesis 1. Additionally, the difference in weight loss between those who used diet option A (*M* = 16.4, *SD* = 1.90) and C (*M* = 16.4, *SD* = 1.53) was proven to be statistically significant (*t*(2.2, 19) = -3.20, *p* = 0.01), providing evidence of Hypothesis 2. Hypothesis 3, which assumed that those who used option A (*M* = 16.4, *SD* = 1.90) would show difference in weight loss from the other options, did not reach statistical significance (*t*(2.2, 19) = -0.15, *p* = 0.75).
+
+## B) Calculate by Hand
+Pick one of your contrasts and perform this calculation by hand and confirm that it is the same as the result obtained in part a. You do not need to calculate the means by hand or the MSW by hand because you already did this in Module 7. Instead, use the sample means and MSW from your output.
+
+### RQ1 by Hand
+```{r}
+# Estimate the contrast of RQ1
+# c1 <- c(0, 1, 0, -1) # RQ1
+c1.con <- (0 * 11) + (1 * 16.4) + (0 * 18) + (-1 * 13.2)
+c1.con
+
+# Calculate the Sum
+c1.sum <- (((0)^2)/6) + (((1)^2)/5) + (((0)^2)/7) + (((-1)^2)/5)
+c1.sum
+
+# Define the MSW (Mean Squares Within)
+c1.MSW <- 61.304
+c1.MSW
+
+# Calculate the Contrast
+c1.Contrast <- (((c1.con)^2) / c1.sum) / c1.MSW
+c1.Contrast
+```
+## C) Pairwise Comparison
+A researcher on your team would prefer not to conduct planned comparisons. Instead, this researcher wanted all pairwise comparisons. Pick a procedure, conduct the analysis in SPSS and R, and summarize what you found.
+
+### Tukey's HSD
+```{r}
+# Use Tukey's HSD to evaluate all pairwise comparisons.
+library(emmeans)
+THSD.diet <- emmeans(oneway.diet3, pairwise ~ diet)
+
+# Summary of Tukey's HSD
+summary(THSD.diet)
+```
+### Summary of Results
+To assess whether the type of diet had an impact on weight loss, we conducted a one-way analysis of variance. Weight loss was the dependent variable and type of diet (with four levels) was the independent variable. Diet type had statistical significance, F(3, 19) = 12.66, *p* < .001. In addition, the effect size ($\eta^2$ = .67) indicated that 66.7% of the variance in weight loss can be explained by the type of diet. 
+
+Since the type of diet was found to be related to weight loss, post hoc analyses were conducted using Tukey's HSD. Results from this procedure indicate that those who used diet option A (*M* = 11, *SD* = 0.90) lost significantly more weight than those who used option B (*M* = 16.4, *SD* = 0.98), *t*(19) = -5.4, *p* < 0.05 and C (*M* = 18, *SD* = 0.83), *t*(19) = -7.0, *p* < 0.05. Additionally, those who used option C (*M* = 18, *SD* = 0.83) lost significantly more weight than D (*M* = 13.2, *SD* = 0.98), *t*(19) = 4.8, *p* < 0.05. 
+
+
