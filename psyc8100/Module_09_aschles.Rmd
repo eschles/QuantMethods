@@ -1,0 +1,133 @@
+---
+title: "Module 9 Assignment"
+author: "Alex Schlesener"
+date: "2023-10-22"
+output:
+    pdf_document:
+      toc: yes
+      toc_depth: 3
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Overview
+Consider an experimental study of generalization. A mild shock is presented to participants in the presence of a rectangle of light that is 11 inches high and 1 inch wide. Participants are then randomly divided into five experimental groups, each of which is tested in the presence of a rectangle of light, but with no shock. The independent variable is the height of the rectangle of light on the test trials; the five groups see a rectangle whose height is either 7, 9, 11, 13, or 15 inches high. An average galvanic skin response (GSR) measure is obtained for each participant. (GSR or skin conductance is a physiological measure of arousal—sweat.)
+
+- H1: The magnitude of conditioned responses should vary directly with the magnitude of the test stimulus; in doing so, GSR scores should increase as a function of the height of the rectangle of light.
+- H2: There should be a trend for GSR scores to be higher the closer the test stimulus is to the training stimulus.
+
+## Description of Data
+This data is from an experimental study of generalization.The independent variable is the height of the rectangle of light on the test trials; the five groups see a rectangle whose height is either 7, 9, 11, 13, or 15 inches high. An average galvanic skin response (GSR) measure is obtained for each participant. (GSR or skin conductance is a physiological measure of arousal—sweat.)
+
+## Import Data
+
+```{r import data}
+generalization.Data <- read.csv("Data/generalization.csv")
+
+# Check the dimensions and the type of variables that we have.
+
+str(generalization.Data)
+summary(generalization.Data)
+```
+## Convert categorical variables to factors
+We must first convert the categorical variable, "stimulus", to a factor. 
+
+```{r}
+# Change Stimulus to a factor and replace the integer vector.
+
+generalization.Data$stimulus <- factor(generalization.Data$stimulus,
+                               labels=c('7in', '9in', '11in', '13in', '15in'))
+
+# Use str() again to check the data frame.
+
+str(generalization.Data)
+
+# Double check the labels that we assigned to the five levels
+# of stimulus.
+
+levels(generalization.Data$stimulus)
+summary(generalization.Data)
+```
+## Examine the data
+
+First, we will calculate the descriptive statistics by condition and note any general trends with the means. 
+
+```{r eda}
+aggregate(gsr ~ stimulus, data = generalization.Data, mean)
+aggregate(gsr ~ stimulus, data = generalization.Data, sd)
+aggregate(gsr ~ stimulus, data = generalization.Data, length)
+```
+
+Next, we will interpret the cell means by using the 'gplots' library.
+
+```{r message = F}
+library(gplots)
+
+plotmeans(gsr ~ stimulus, generalization.Data,
+          ylab="GSR", xlab="Stimulus", col="purple",
+          barcol="lightblue", n.label = F, main = "Figure 1")
+```
+
+Lastly, we will examine boxplots or histograms by condition.
+
+```{r}
+boxplot(generalization.Data$gsr ~ generalization.Data$stimulus, col=blues9,
+        xlab = "Stimulus",
+        ylab = "GSR",
+        main = "Figure 2")
+```
+
+## One-way Analysis of Variance
+
+First, we will use lm() to conduct a one-way ANOVA.  
+```{r}
+fitData <- lm(gsr ~ stimulus, generalization.Data)
+summary(fitData)
+
+# Obtain the ANOVA summary table
+anova(fitData)
+
+# Calculate the total sum of squares
+var(generalization.Data$gsr)*(100-1)
+```
+
+### Summary
+By using summary() on the fitted model 'fitData', we see that the multiple *R^2* = 0.2851. Therefore, in the one-way ANOVA, the *Stimulus* conditions explain about 28.51% of variance in the average galvanic skin response (GSR). Additionally, the overall *F* statistic was 9.47 on 4 and 95 degrees of freedom and was statistically significant (p < .001). For this reason, we reject the null hypothesis. Furthermore, the total sum-of-squares (550.10) can be separated into variability between-groups (156.81) and within-groups (393.29).
+
+## Check Homogeneity of Variance Assumption
+```{r}
+library(car)
+leveneTest(gsr ~ stimulus, data = generalization.Data, center = mean)
+```
+If we are assuming that $\alpha$ = .05, we can conclude that the population variance of *GSR* does not differ across the five different conditions. 
+
+## Comparison among Means via Trend Analysis
+```{r}
+library(emmeans)
+genStudy <- emmeans(fitData, 'stimulus')
+
+poly.contrast <- contrast(genStudy, 'poly')
+poly.contrast
+```
+### Summary
+Assuming that $\alpha$ = .05, the linear and quadratic trends are statistically significant. 
+
+## Effect Size
+```{r}
+# Linear Trend
+linear.effect <- ((3.111)^2)/(((3.111)^2)+95)
+linear.effect
+
+# Quadratic Trend
+quad.effect <- ((-5.076)^2)/(((-5.076)^2)+95)
+quad.effect
+```
+### Summary
+Based on the effect size, the quadratic trend of stimulus type on galvanic skin response has the largest effect.
+
+## Summary of Results
+To assess whether stimulus size had an effect on galvanic skin response (GSR) measurements, we conducted a one-way analysis of variance. The dependent variable is GSR measurement and the independent variable is the height of the rectangle of light on each of the test trials (with five levels). We found overall statistical significance regarding stimulus type, *F*(4, 95) = 9.47, *p* < .001. In addition, the effect size ($\eta^2$ = .29) indicates about 28.51% of variance in the galvanic skin response (GSR).
+
+Because stimulus type was found to be related to job satisfaction, we then conducted a trend analysis using orthogonal polynomials. Both the linear, *t*(95) = 3.11 (*p* = .003), and the quadratic, *t*(95) = 3.11 (*p* = .003), effects were determined to be statistically significant. However, the quadratic trend of stimulus size on galvanic skin response has a larger effect size ($\eta^2$ = .21) than the that of the linear effect ($\eta^2$ = .09). Figure 1 depicts the nature of the parabolic relationship between stimulus size and GSR measurements. 
