@@ -1,0 +1,198 @@
+---
+title: 'Module 11: Two-way ANOVA'
+author: 'Patrick J. Rosopa, Ph.D.'
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output:
+  pdf_document:
+    toc: yes
+    toc_depth: 3
+    number_sections: TRUE
+  html_document:
+    toc: yes
+    toc_float: TRUE
+    toc_depth: 3
+    number_sections: TRUE
+    theme: cerulean
+    code_download: TRUE
+  word_document:
+    toc: yes
+    toc_depth: 3
+    number_sections: TRUE
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Objective
+
+-   Test main effects and interaction in a two-way analysis of variance
+-   Conduct post hoc comparisons for significant main effects
+-   Conduct test of simple effects for significant interaction
+
+## Import data
+
+Recall that there are several ways to load a dataset into `R`. We will read in a .csv file. Download the data and ensure it is located in your project. In this example, the file is located in a folder called Data in my current working directory. Read in the .csv file and assign to an object called `Health.new`.
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+# load packages
+library(haven)
+library(car)
+library(emmeans)
+library(lsr)
+library(effects)
+library(interactions)
+
+# Download the data & ensure it is located in your project. In this example, the
+# data file is located in a folder called Data in my current working directory.
+
+Health.new <- read_sav("Data/Two-way ANOVA.sav")
+
+# Check the dimensions and the type of variables that we have.
+
+str(Health.new)
+summary(Health.new)
+```
+
+We have a data frame with `r dim(Health.new)[1]` rows and `r dim(Health.new)[2]` columns. The variables are *Patient_ID*, *diet*, *drug*, and *Physical*. *diet* and *drug* should be converted to factors.
+
+## Convert categorical variables to factors
+
+It is a good idea to ensure that any categorical variables are properly converted to factors. Be sure that you know how the levels are coded.
+
+Ensure that diet and drug are factors. Instead of the default treatment contrasts coding (0,1), we will use effects coding. This is also called deviation coding. See Section 4.7.2 of Fox and Weisberg for other ways to code factors. For analysis of variance, it is common for many textbooks to use effects coding for factors.
+
+```{r}
+Health.new$diet <- factor(Health.new$diet,
+                          labels=c("Atkins","Mediterranean"))
+Health.new$drug <- factor(Health.new$drug,
+                          labels=c("Standard","New"))
+contrasts(Health.new$diet) <- "contr.sum"
+contrasts(Health.new$drug) <- "contr.sum"
+contrasts(Health.new$diet)
+contrasts(Health.new$drug)
+```
+
+## Some descriptive statistics
+
+We can calculate descriptive statistics by condition (e.g., mean, standard deviation, minimum, maximum). Note any general trends with the means.
+
+```{r descriptives}
+# using the base R function aggregate()
+
+aggregate(Physical ~ diet + drug, data=Health.new, mean)
+aggregate(Physical ~ diet, data=Health.new, mean)
+aggregate(Physical ~ drug, data=Health.new, mean)
+
+# using the car package and Tapply() function
+
+Tapply(Physical ~ diet + drug, mean, data=Health.new)
+Tapply(Physical ~ diet, mean, data=Health.new)
+Tapply(Physical ~ drug, mean, data=Health.new)
+```
+
+## Conduct two-way analysis of variance
+
+There are many ways in which to conduct a two-way ANOVA in `R`. We will focus on using the `lm()` function because it is the most general. As a reminder, in the `lm()` function, the outcome is the first argument. To the right of the tilde will be the independent variables separated by a + sign. After the comma, use the data argument. Provide the name of the data frame that contains the variables. Physical is the outcome. The independent variables are diet and drug. The data frame is Health.new. To specify an interaction between variables use a colon. Thus, to include the interaction between diet and drug, we would include diet:drug as another term in our model.
+
+```{r}
+health.2wy <- lm(Physical ~ diet + drug + diet:drug, Health.new)
+summary(health.2wy)
+```
+
+Use `summary()` on the fitted model. We see that the multiple *R*^2^ = .5116. Use `Anova()` function in the `car` library to obtain Type III sums-of-squares. The `car` library was loaded above. Notice the use of the type argument where we specify `type=3` to tell `R` that we want Type III sums-of-squares.
+
+```{r}
+# Use Anova() to obtain to obtain Type III sum-of-squares
+
+Anova(health.2wy, type=3)
+```
+
+From the analysis of variance summary table, there were main effects for diet and drug, and there was an interaction between diet and drug.
+
+-   Main effect of diet: *F*(1,36) = 17.74, *p* \< .001.
+-   Main effect of drug: *F*(1,36) = 10.33, *p* = .003.
+-   Interaction effect between diet & drug: *F*(1,36) = 9.63, *p* = .004.
+
+## Check homogeneity of variance assumption
+
+Analysis of variance requires three assumptions: normality, independence, and homogeneity of variance. With this assumption, the population variance in each group should not differ from one another. We use Levene's test in the `car` package to check this assumption. We do NOT want the test to be statistically significant. In other words, we are hoping that the *p* value will be greater than $\alpha = .05$.
+
+Because we have a 2 x 2, we are testing whether the four population variances are the same.
+
+```{r message = F}
+leveneTest(Physical ~ diet*drug, data = Health.new, center = mean)
+```
+
+The homogeneity of variance assumption is violated. However, we will continue with analyses and learn about some remedies later.
+
+## Understanding main effects {.tabset}
+
+Because all three *F* statistics were statistically significant, we then conduct relevant comparisons to understand the differences. Because we have two levels of each independent variable, this amounts to simply a *t*-test, which we do not need to conduct. We can simply look at the two means for Diet and the two means for Drug to understand the main effects. However, we will use the `emmeans` package for comparisons since this is what you would typically do if you have three or more levels of an independent variable.
+
+### Main effect of Diet
+
+Post hoc comparisons to understand the main effect of diet.
+
+```{r}
+emmeans(health.2wy, pairwise ~ diet)
+```
+
+### Main effect of Drug
+
+Post hoc comparisons to understand the main effect of drug.
+
+```{r}
+emmeans(health.2wy, pairwise ~ drug)
+```
+
+## Understanding interaction effect
+
+To understand how our two independent variables interact, tests of simple effects should be conducted. Remember that interactions are symmetrical. Thus, we can conduct the simple effects of one independent variable at specific levels of the other independent variable. However, one perspective may be more convenient than the other. For example, a nutritionist might examine the simple effects of Diet at each level of Drug. However, a researcher in the pharmaceutical industry might examine the simple effects of Drug at each level of Diet.
+
+For simple effects, we can use the subset argument in the `lm()` function. In the code below, we analyze only the rows where diet is equal to "Atkins." Notice the use of the double equals which is a Boolean operator. When we fit the first model, we are examining the effect of Drug on Physical Energy, but we are only using data from those on the Atkins diet. Then, we analyze the rows where diet is equal to "Mediterranean." Notice again the use of the double equals sign.
+
+```{r}
+simple.Atkins <- lm(Physical ~ drug, data = Health.new,
+                    subset = diet=="Atkins")
+simple.Med <- lm(Physical ~ drug, data = Health.new, 
+                 subset = diet=="Mediterranean")
+```
+
+If we needed to perform additional analyses like the use of comparisons, then we can use the `emmeans()` function in the `emmeans` package.
+
+```{r}
+emmeans(simple.Atkins, pairwise ~ drug)
+emmeans(simple.Med, pairwise ~ drug)
+```
+
+## Effect size
+
+When reporting the results of a statistical test, we have consistently reported the test statistic (e.g., *t*, *F*), the associated degrees of freedom, and exact *p* value (when possible). We also reported an appropriate index of effect size.
+
+We have already seen a correlation-based index of effect size (see Module 8, and p. 198 in MDK, Eq. 48). To obtain partial eta-squared for each effect, we can use the `lsr` package.
+
+```{r}
+etaSquared(health.2wy)
+```
+
+It is typical to report partial $\eta^2$ which differs from $\eta^2$ in a design with more than one independent variable due to differences in the denominator used. These are discussed in MDK. See also the last few slides in Module 11.
+
+## Plots
+
+Plot cell means and include as part of a Results section. Here is one approach for plotting the cell means using the `effects` library.
+
+```{r}
+plot(Effect(c('diet','drug'), health.2wy),
+     xlab = 'Diet',
+     main = 'Interaction between Diet & Drug',
+     lines = list(multiline=TRUE), ylim = c(23,32))
+```
+
+Here is another approach using the `interactions` library.
+
+```{r}
+cat_plot(health.2wy, pred=diet, modx=drug, geom = 'line',
+         point.shape = TRUE,
+         main.title = 'Interaction between Diet & Drug')
+```
